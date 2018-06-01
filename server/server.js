@@ -1,54 +1,16 @@
-var mongoose = require('mongoose');
+var express = require('express');
+var bodyParser = require('body-parser');
 
-mongoose.Promise = global.Promise;
+var mongoose = require('./db/mongoose');
+var { Todo } = require('./models/todos');
+var { User } = require('./models/user');
 
-const url = 'mongodb://localhost:27017/TodoApp';
+var app = express();
 
-mongoose.connect(url);
+app.post('/todos', (req, res) => {
 
-// var Todo = mongoose.model('Todo', {
-//     text: {
-//       type: String,
-//       required: true,  // mongooes validation
-//       minlength: 1,
-//       trim: true
-//     },
-//     completed: {
-//       type: Boolean, 
-//       default: false
-//     },
-//     completedAt: {
-//        type: Number,
-//        default: false
-//     }
-// });
-
-// var ATodo = Todo({
-//     text: 'Take Aaata'
-// });
-
-// ATodo.save().then((doc) => {
-//   console.log('Data Inserted', doc)
-// },(err) => {
-//     console.log('Unable to Add', err);
-// });
-
-
-var User = mongoose.model('Users', {
-    email: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 1
-    }
 });
 
-var NewUser = User({
-    email:'vivekkadu97@gmail.com'
-});
-
-NewUser.save().then((doc) => {
-    console.log(doc);
-}, (err) => {
-    console.log(err);
+app.listen(3000, () => {
+    console.log('STARTED ON PORT 3000');
 })
