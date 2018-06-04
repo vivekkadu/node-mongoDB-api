@@ -1,3 +1,4 @@
+const _ = require('lodash');
 var express = require('express');
 var {ObjectID} = require('mongodb');
 var bodyParser = require('body-parser');
@@ -74,7 +75,7 @@ Todo.findByIdAndRemove(id).then((todo) => {
     if(!todo){
         return res.status(404).send();
     }
-    res.send(todo);
+    res.send({todo});
 }, (err) => {
    res.status(400).send(err);
 });
@@ -82,6 +83,38 @@ Todo.findByIdAndRemove(id).then((todo) => {
 });
 
 
+
+//PATCH to Upadate property from todo
+
+app.patch('/todos/:id', (req, res) => {
+
+    var id = req.params.id;
+    //var body store property from todo which can be available to update by user
+
+    var body = _.pick(req.body ,['text', 'completed']);
+
+        if(!ObjectID.isValid(id)){
+                return res.status(404).send();
+            }
+    //Set the completedAt if user set Completed as true
+    //if statement run when body.completed is boolean and body.completd is true
+   
+        if(_.isBoolean(body.completed) && body.completed){ 
+            body.completedAt = new Date().getTime();
+        } else {
+            body.completed = false;
+            body.completedAt= null;
+        }
+
+    Todo.findByIdAndUpdate(id, { $set: body }, { new: true }).then((todo) => {
+       if(!todo) {
+           return res.status(404).send();
+       }
+        res.send({todo});
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
 
 app.listen(port, () => {
     console.log('STARTED ON PORT', port);
