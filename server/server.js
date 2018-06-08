@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('./db/mongoose');
 var { Todo } = require('./models/todos');
 var { User } = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
@@ -137,17 +138,8 @@ app.patch('/todos/:id', (req, res) => {
   
       
 
-
-app.get('/users/me', (req, res) => {
-
-      var token =req.header('x-auth');
-
-      User.findByToken(token).then((user) => {
-          if(!user){
-                     
-          }
-          res.send(user);
-      })
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user); 
 });
 
 app.listen(port, () => {

@@ -2,6 +2,7 @@ var validator = require('validator');
 var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 var _ = require('lodash');
+var bcrypt = require('bcrypt');
 
 
 var UserSchema = new mongoose.Schema({
@@ -59,9 +60,10 @@ UserSchema.statics.findByToken = function(token) {
      try{
        decoded = jwt.verify(token, 'abc123');
      }catch(e) {
-       return new Promise((resolve, reject) => {
-           reject();
-       });
+    //    return new Promise((resolve, reject) => {
+    //        reject();
+    //    });
+      return Promise.reject();
      }
 
      return User.findOne({
@@ -70,6 +72,25 @@ UserSchema.statics.findByToken = function(token) {
          'tokens.token': token
      });
 }
+
+
+//this will run before an activity on Schema in  this case it is save
+
+UserSchema.pre('save' , function (next) {
+  var user = this;
+  //isModified return true if password field is modified
+  if(user.isModified('password')){
+    bcrypt.genSalt(10, (err, salt )=> {
+        bcrypt.hash(user.password, salt , (err, hash) => {
+          user.password = hash;
+          next();
+        });
+    })
+  }else{
+    next();
+  }
+});
+
 var User = mongoose.model('Users', UserSchema);
 
 
